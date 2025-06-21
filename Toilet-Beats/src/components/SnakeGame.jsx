@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'
 
 // --- Constants ---
 const GRID_SIZE = 20;
@@ -64,12 +64,9 @@ const getNormalizedDirection = (p1, p2) => {
     return { dx, dy };
 };
 
-/**
- * Rotates a Tailwind CSS rounded corner class 90 degrees clockwise (right).
- * This function applies the user's requested visual "rotation" to the corner rounding.
- * @param {string} className - The original Tailwind CSS rounded corner class (e.g., 'rounded-tl-md').
- * @returns {string} The new Tailwind CSS class after rotating the rounding.
- */
+// This function is present in the original code but not directly used in Board,
+// but it's okay to keep it if there's a future use case or it's a leftover.
+// Leaving it as-is based on user's provided code structure.
 const rotateCornerBy90Right = (className) => {
     switch (className) {
         case 'rounded-tl-md': return 'rounded-tr-md'; // Top-Left -> Top-Right
@@ -131,7 +128,7 @@ const getInitialSnake2State = (existingBodies = []) => {
     if (secondSegment.y >= TILE_COUNT) secondSegment.y = 0;
 
     body.push(secondSegment);
-    
+
     return {
         body: body,
         direction: direction,
@@ -201,7 +198,7 @@ const ToiletPaperRollSVG = ({ fillColor, isHead, direction }) => {
  * @param {{body: Array<{x: number, y: number}>, direction: {dx: number, dy: number}}} props.snake2 - Snake 2 data.
  * @returns {JSX.Element} The game board.
  */
-const Board = ({ snake1, snake2 }) => { 
+const Board = ({ snake1, snake2 }) => {
 
     /**
      * Calculates the normalized direction (dx, dy where dx,dy are -1, 0, or 1)
@@ -266,8 +263,8 @@ const Board = ({ snake1, snake2 }) => {
                 </div>
             );
         } else if (isTail) {
-            const prevSegment = body[index - 1]; 
-            const approachDir = getNormalizedDirection(prevSegment, segment); 
+            const prevSegment = body[index - 1];
+            const approachDir = getNormalizedDirection(prevSegment, segment);
 
             let tailRoundedClass = '';
             if (approachDir.dx === 1) tailRoundedClass = 'rounded-r-md';
@@ -283,32 +280,32 @@ const Board = ({ snake1, snake2 }) => {
                 />
             );
         } else {
-            const prevSegmentInSequence = body[index + 1]; 
-            const nextSegmentInSequence = body[index - 1]; 
+            const prevSegmentInSequence = body[index + 1];
+            const nextSegmentInSequence = body[index - 1];
 
-            const entryDir = getNormalizedDirection(prevSegmentInSequence, segment); 
-            const exitDir = getNormalizedDirection(segment, nextSegmentInSequence); 
+            const entryDir = getNormalizedDirection(prevSegmentInSequence, segment);
+            const exitDir = getNormalizedDirection(segment, nextSegmentInSequence);
 
             let cornerClasses = '';
             if (entryDir.dx !== exitDir.dx || entryDir.dy !== exitDir.dy) {
-                if (entryDir.dx === 0 && entryDir.dy === 1) { 
-                    if (exitDir.dx === 1) cornerClasses = 'rounded-tl-md'; 
-                    if (exitDir.dx === -1) cornerClasses = 'rounded-tr-md'; 
-                } else if (entryDir.dx === 0 && entryDir.dy === -1) { 
-                    if (exitDir.dx === 1) cornerClasses = 'rounded-bl-md'; 
-                    if (exitDir.dx === -1) cornerClasses = 'rounded-br-md'; 
-                } else if (entryDir.dx === 1 && entryDir.dy === 0) { 
-                    if (exitDir.dy === 1) cornerClasses = 'rounded-tl-md'; 
-                    if (exitDir.dy === -1) cornerClasses = 'rounded-bl-md'; 
-                } else if (entryDir.dx === -1 && entryDir.dy === 0) { 
-                    if (exitDir.dy === 1) cornerClasses = 'rounded-tr-md'; 
-                    if (exitDir.dy === -1) cornerClasses = 'rounded-br-md'; 
+                if (entryDir.dx === 0 && entryDir.dy === 1) {
+                    if (exitDir.dx === 1) cornerClasses = 'rounded-tl-md';
+                    if (exitDir.dx === -1) cornerClasses = 'rounded-tr-md';
+                } else if (entryDir.dx === 0 && entryDir.dy === -1) {
+                    if (exitDir.dx === 1) cornerClasses = 'rounded-bl-md';
+                    if (exitDir.dx === -1) cornerClasses = 'rounded-br-md';
+                } else if (entryDir.dx === 1 && entryDir.dy === 0) {
+                    if (exitDir.dy === 1) cornerClasses = 'rounded-tl-md';
+                    if (exitDir.dy === -1) cornerClasses = 'rounded-bl-md';
+                } else if (entryDir.dx === -1 && entryDir.dy === 0) {
+                    if (exitDir.dy === 1) cornerClasses = 'rounded-tr-md';
+                    if (exitDir.dy === -1) cornerClasses = 'rounded-br-md';
                 }
             }
             return (
                 <div
                     key={`seg-${index}`}
-                    className={`${segmentBaseClass} ${cornerClasses}`} 
+                    className={`${segmentBaseClass} ${cornerClasses}`}
                     style={{ backgroundColor: bodyColor, gridColumn: segment.x + 1, gridRow: segment.y + 1 }} // Apply color directly
                 />
             );
@@ -344,7 +341,8 @@ const Board = ({ snake1, snake2 }) => {
 // --- Main App Component ---
 const App = () => {
     const navigate = useNavigate();
-    const [playerNames] = useState(() => { // Using [] for playerNames as it's not directly modified here
+
+    const [playerNames] = useState(() => {
         try {
             const storedPlayers = localStorage.getItem('players');
             return storedPlayers ? JSON.parse(storedPlayers) : { player1: 'Player 1', player2: 'Player 2' };
@@ -392,13 +390,20 @@ const App = () => {
             setMessage('It\'s a draw! Restrategise and press Shift to crown a victor!');
         } else {
             const winnerName = winner === 'player1' ? playerNames.player1 : playerNames.player2;
+            const players = JSON.parse(localStorage.getItem('players')) || {
+            player1: 'Player 1',
+            player2: 'Player 2',
+            scores: { 'Player 1': 0, 'Player 2': 0 }
+            };
+            const data = { ...playerNames };
+            data.scores[winnerName] = (data.scores[winnerName] || 0) + 1;
+            localStorage.setItem('players', JSON.stringify(data));
             setMessage(`${winnerName} Wins! Congrats, ${winnerName} is one step closer to earning their TP`);
         }
         // Do not call cancelAnimationFrame here directly; let useEffect handle it.
     }, [playerNames]); // playerNames is a dependency for the message
 
     const getNextSnakeState = useCallback((snake, inputQueueRef) => {
-        // ... (logic remains the same)
         if (!snake.isAlive) return { updatedSnake: snake };
 
         let effectiveDirection = snake.direction;
@@ -427,23 +432,12 @@ const App = () => {
         if (head.y >= TILE_COUNT) head.y = 0;
 
         const newBody = [head, ...updatedSnake.body];
-        // Snakes don't grow in this version, so always keep body length to 2 for collision detection
-        // If they were to grow, this would be `newBody.slice(0, snake.body.length + 1)` for example.
-        // For collision only, keeping them at 2 segments is fine.
-        // However, your renderSnakeSegment logic implies a longer snake body for bends/tails.
-        // So, assuming snake body length *is* important for rendering, keep the last segment:
-        // This is a crucial point for a snake game. If the length doesn't increase, the "tail" disappears.
-        // The current code *adds* a new head without removing the tail, which means snakes will continuously grow.
-        // If they *shouldn't* grow (like in Tron), then you'd need to slice:
+        // Note: Your current implementation allows snakes to grow infinitely,
+        // which can lead to performance issues or crashes over very long games due to memory usage.
+        // If the game intends snakes to have a fixed length (like classic Snake),
+        // you would need to slice the array to remove the tail segment:
         // const newBody = [head, ...updatedSnake.body.slice(0, updatedSnake.body.length - 1)];
-        // Based on the TP_BODY_1_COLOR/TP_BODY_2_COLOR and rendering of tails/corners, it seems they should be drawing a trail.
-        // So, the current `newBody` creation is effectively making them grow infinitely which will cause crashes eventually due to memory.
-        // Let's assume for a "Tron-like" game, the body does *not* grow unless "eating" food (which is not implemented here).
-        // For Tron-like, the body length should be constant, so remove the last segment:
-        // If the game means they leave a permanent trail, then this is fine, but it will eventually exhaust memory/performance.
-        // Assuming they grow to trace a line as they move and the problem is with collisions rather than growth:
-        // The issue isn't infinite growth if the game is about leaving trails. The current code is fine for that.
-        // The issue is simply the game loop not stopping.
+        // If it's a Tron-like game where trails are permanent and grow, the current implementation is correct.
 
         return { updatedSnake: { ...updatedSnake, body: newBody } };
     }, []);
@@ -594,7 +588,7 @@ const App = () => {
     }, [gameActive, updateGame, gameSpeed]);
 
     const goBackToHomePage = () => {
-        // Ensure any lingering game loops are stopped before navigating away
+        // Ensure any lingering game loops are stopped before "navigating" (resetting the component)
         if (gameLoopRef.current) {
             cancelAnimationFrame(gameLoopRef.current);
             gameLoopRef.current = null;
@@ -619,14 +613,14 @@ const App = () => {
 
                 <div className="text-xs mt-2 text-center mb-4">
                     <p>P1 ({playerNames.player1}): WASD | P2 ({playerNames.player2}): UJHK</p>
-                    <p></p>
+                    {/* The empty <p> tag can remain if it's for spacing, it shouldn't cause the "Objects are not valid" error */}
                 </div>
 
                 {/* Back to Home Button */}
-                {(!gameActive && (message.includes('Wins!') || message.includes('draw!'))) && ( // Show if game is not active AND game over message is present
+                {(!gameActive && (message.includes('Wins!'))) && ( // Show if game is not active AND game over message is present
                     <button
                         onClick={goBackToHomePage}
-                        className="font-['Press_Start_2P'] bg-gray-700 text-white border-2 border-gray-600 px-5 py-3 text-base rounded-lg cursor-pointer transition-all active:translate-y-0.5 active:shadow-inner shadow-[0_4px_#333] mt-4"
+                        className="font-['Press_Start_2P'] bg-gray-700 text-white border-2 border-gray-600 px-5 py-3 text-base rounded-lg cursor-pointer transition-all active:translate-y-0.5 active:shadow-inner shadow-[0_4px_#333] mt-8"
                     >
                         Back to Home
                     </button>
