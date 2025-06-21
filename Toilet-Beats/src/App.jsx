@@ -33,6 +33,7 @@ const AppWrapper = () => {
         <Route path="/RPS" element={<RPS />} />
         <Route path="/Rhythm" element={<Rhythm />} />
         <Route path="/winner" element={<ToiletPaperWinner />} />
+        <Route path="/Snake" element={<Snake />} />
       </Routes>
     </div>
   );
