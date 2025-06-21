@@ -32,7 +32,7 @@ export default function ToiletPaperWinner() {
     })();
 
     if (winnerKey) {
-      fetch('http://localhost:3001/dispense', {
+      fetch('http://192.168.11.109:3001/dispense', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ winner: winnerKey }) // Only "p1" or "p2"
