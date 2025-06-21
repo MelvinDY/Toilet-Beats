@@ -3,8 +3,8 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import Dashboard from './components/Dashboard';
 import PlayerSetup from './components/PlayerSetup';
 import RPS from './components/ToiletRPS';
-import Rhythm from './components/RhythmGame';
 import SNP from './components/SlipNPong';
+import Rhythm from './components/RhythmGame';
 import ToiletPaperWinner from './components/ToiletPaperWinner';
 import Snake from './components/SnakeGame';
 import './App.css';

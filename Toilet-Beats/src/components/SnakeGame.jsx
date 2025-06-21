@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // --- Constants ---
 const GRID_SIZE = 20;
@@ -339,64 +340,79 @@ const Board = ({ snake1, snake2 }) => {
 };
 
 
+
 // --- Main App Component ---
 const App = () => {
-    // --- State Management ---
+    const navigate = useNavigate();
+    const [playerNames] = useState(() => { // Using [] for playerNames as it's not directly modified here
+        try {
+            const storedPlayers = localStorage.getItem('players');
+            return storedPlayers ? JSON.parse(storedPlayers) : { player1: 'Player 1', player2: 'Player 2' };
+        } catch (e) {
+            console.error("Failed to parse players from localStorage", e);
+            return { player1: 'Player 1', player2: 'Player 2' };
+        }
+    });
+
     const [snake1, setSnake1] = useState(() => getInitialSnake1State());
     const [snake2, setSnake2] = useState(() => getInitialSnake2State());
     const [gameActive, setGameActive] = useState(false);
-    const [message, setMessage] = useState('Outsmart your opponent with the power of Toilet Paper!\nPress Shift to start'); // Updated initial message
+    const [message, setMessage] = useState('Outsmart your opponent with the power of Toilet Paper!\nPress Shift to start');
 
-    // Using useRef for game loop to prevent re-renders from affecting the interval
-    const gameLoopRef = useRef(null);
+    const gameLoopRef = useRef(null); // Ref to hold the requestAnimationFrame ID
     const lastUpdateTimeRef = useRef(0);
-    const [gameSpeed, setGameSpeed] = useState(GAME_SPEED); 
+    const [gameSpeed] = useState(GAME_SPEED); // gameSpeed is constant, so no need for setGameSpeed if it doesn't change
 
-    // --- Input Queues ---
     const player1InputQueue = useRef([]);
     const player2InputQueue = useRef([]);
 
-
     // --- Game Logic ---
     const resetGame = useCallback(() => {
-        setGameActive(false); 
+        // Clear any existing animation frame before starting a new game
+        if (gameLoopRef.current) {
+            cancelAnimationFrame(gameLoopRef.current);
+            gameLoopRef.current = null;
+        }
+
         const initialSnake1 = getInitialSnake1State();
+        // Pass snake1's body to avoid initial overlap for snake2
         const initialSnake2 = getInitialSnake2State(initialSnake1.body);
 
         setSnake1(initialSnake1);
         setSnake2(initialSnake2);
-        setGameSpeed(GAME_SPEED);
+        setMessage('');
         player1InputQueue.current = [];
         player2InputQueue.current = [];
-        setMessage(''); 
-        setGameActive(true); 
-    }, []);
+        setGameActive(true); // Start the game
+    }, []); // No dependencies for resetGame if it's truly resetting to initial state
 
     const handleGameOver = useCallback((winner) => {
-        setGameActive(false);
-        cancelAnimationFrame(gameLoopRef.current); 
+        setGameActive(false); // This will trigger the useEffect cleanup
         if (winner === 'draw') {
             setMessage('It\'s a draw! Restrategise and press Shift to crown a victor!');
         } else {
-            const winnerName = winner === 'player1' ? 'Player 1' : 'Player 2';
-            setMessage(`${winnerName} Wins! Congrats, ${winnerName} is one step closer to earning your TP`);
+            const winnerName = winner === 'player1' ? playerNames.player1 : playerNames.player2;
+            setMessage(`${winnerName} Wins! Congrats, ${winnerName} is one step closer to earning their TP`);
         }
-    }, []);
+        // Do not call cancelAnimationFrame here directly; let useEffect handle it.
+    }, [playerNames]); // playerNames is a dependency for the message
 
     const getNextSnakeState = useCallback((snake, inputQueueRef) => {
-        if (!snake.isAlive) return { updatedSnake: snake }; 
+        // ... (logic remains the same)
+        if (!snake.isAlive) return { updatedSnake: snake };
 
         let effectiveDirection = snake.direction;
 
         if (inputQueueRef.current.length > 0) {
-            const nextQueuedDirection = inputQueueRef.current[0]; 
+            const nextQueuedDirection = inputQueueRef.current[0];
+            // Prevent immediately reversing direction
             if (!(snake.direction.dx === -nextQueuedDirection.dx && snake.direction.dy === -nextQueuedDirection.dy)) {
-                effectiveDirection = inputQueueRef.current.shift(); 
+                effectiveDirection = inputQueueRef.current.shift();
             } else {
-                inputQueueRef.current.shift();
+                inputQueueRef.current.shift(); // Discard invalid input
             }
         }
-        
+
         const updatedSnake = { ...snake, direction: effectiveDirection };
 
         let head = {
@@ -404,17 +420,38 @@ const App = () => {
             y: updatedSnake.body[0].y + updatedSnake.direction.dy
         };
 
+        // Wraparound logic
         if (head.x < 0) head.x = TILE_COUNT - 1;
         if (head.x >= TILE_COUNT) head.x = 0;
         if (head.y < 0) head.y = TILE_COUNT - 1;
         if (head.y >= TILE_COUNT) head.y = 0;
 
         const newBody = [head, ...updatedSnake.body];
+        // Snakes don't grow in this version, so always keep body length to 2 for collision detection
+        // If they were to grow, this would be `newBody.slice(0, snake.body.length + 1)` for example.
+        // For collision only, keeping them at 2 segments is fine.
+        // However, your renderSnakeSegment logic implies a longer snake body for bends/tails.
+        // So, assuming snake body length *is* important for rendering, keep the last segment:
+        // This is a crucial point for a snake game. If the length doesn't increase, the "tail" disappears.
+        // The current code *adds* a new head without removing the tail, which means snakes will continuously grow.
+        // If they *shouldn't* grow (like in Tron), then you'd need to slice:
+        // const newBody = [head, ...updatedSnake.body.slice(0, updatedSnake.body.length - 1)];
+        // Based on the TP_BODY_1_COLOR/TP_BODY_2_COLOR and rendering of tails/corners, it seems they should be drawing a trail.
+        // So, the current `newBody` creation is effectively making them grow infinitely which will cause crashes eventually due to memory.
+        // Let's assume for a "Tron-like" game, the body does *not* grow unless "eating" food (which is not implemented here).
+        // For Tron-like, the body length should be constant, so remove the last segment:
+        // If the game means they leave a permanent trail, then this is fine, but it will eventually exhaust memory/performance.
+        // Assuming they grow to trace a line as they move and the problem is with collisions rather than growth:
+        // The issue isn't infinite growth if the game is about leaving trails. The current code is fine for that.
+        // The issue is simply the game loop not stopping.
 
-        return { updatedSnake: { ...updatedSnake, body: newBody } }; 
-    }, []); 
+        return { updatedSnake: { ...updatedSnake, body: newBody } };
+    }, []);
 
     const updateGame = useCallback(() => {
+        // Prevent updates if the game is not active
+        if (!gameActive) return;
+
         const { updatedSnake: tempSnake1 } = getNextSnakeState(snake1, player1InputQueue);
         const { updatedSnake: tempSnake2 } = getNextSnakeState(snake2, player2InputQueue);
 
@@ -424,13 +461,15 @@ const App = () => {
         const head1 = tempSnake1.body[0];
         const head2 = tempSnake2.body[0];
 
-        // Self-collision 
+        // --- Collision Detection ---
+        // Self-collision for Snake 1
         for (let i = 1; i < tempSnake1.body.length; i++) {
             if (head1.x === tempSnake1.body[i].x && head1.y === tempSnake1.body[i].y) {
                 s1Alive = false;
                 break;
             }
         }
+        // Self-collision for Snake 2
         for (let i = 1; i < tempSnake2.body.length; i++) {
             if (head2.x === tempSnake2.body[i].x && head2.y === tempSnake2.body[i].y) {
                 s2Alive = false;
@@ -438,23 +477,26 @@ const App = () => {
             }
         }
 
-        // Cross-collision 
+        // Cross-collision (Snake 1 head into Snake 2 body)
         if (tempSnake2.body.some(seg => seg.x === head1.x && seg.y === head1.y)) {
             s1Alive = false;
         }
+        // Cross-collision (Snake 2 head into Snake 1 body)
         if (tempSnake1.body.some(seg => seg.x === head2.x && seg.y === head2.y)) {
             s2Alive = false;
         }
 
-        // Head-on collision 
+        // Head-on collision
         if (head1.x === head2.x && head1.y === head2.y) {
             s1Alive = false;
             s2Alive = false;
         }
 
+        // Update states
         setSnake1(s => ({ ...tempSnake1, isAlive: s1Alive }));
         setSnake2(s => ({ ...tempSnake2, isAlive: s2Alive }));
 
+        // Check for game over condition *after* setting new states
         if (!s1Alive && !s2Alive) {
             handleGameOver('draw');
         } else if (!s1Alive) {
@@ -463,75 +505,102 @@ const App = () => {
             handleGameOver('player1');
         }
 
-    }, [snake1, snake2, getNextSnakeState, handleGameOver]); 
+    }, [snake1, snake2, gameActive, getNextSnakeState, handleGameOver]); // Added gameActive to dependencies
 
     // --- Effects ---
     useEffect(() => {
         const handleKeyDown = (e) => {
             const key = e.key;
 
-            if (key === 'Shift') { 
-                e.preventDefault(); 
-                if (!gameActive || message.includes('Play Again')) { 
-                    resetGame(); 
+            if (key === 'Shift') {
+                e.preventDefault();
+                // Only reset if game is not active or message indicates game is over
+                if (!gameActive || message.includes('Wins!') || message.includes('draw!')) {
+                    resetGame();
                 }
-                return; 
+                return;
             }
 
-            if (PLAYER_1_CONTROLS[key.toLowerCase()]) { 
-                const { dx, dy } = PLAYER_1_CONTROLS[key.toLowerCase()];
-                const currentActiveDirection = snake1.direction;
-                if (!(currentActiveDirection.dx === -dx && currentActiveDirection.dy === -dy) || player1InputQueue.current.length === 0) {
-                    player1InputQueue.current.push({ dx, dy });
-                }
-            }
-            else if (PLAYER_2_CONTROLS[key]) {
-                const { dx, dy } = PLAYER_2_CONTROLS[key];
-                const currentActiveDirection = snake2.direction;
-                if (!(currentActiveDirection.dx === -dx && currentActiveDirection.dy === -dy) || player2InputQueue.current.length === 0) {
-                    player2InputQueue.current.push({ dx, dy });
+            if (gameActive) { // Only process controls if game is active
+                if (PLAYER_1_CONTROLS[key.toLowerCase()]) {
+                    const { dx, dy } = PLAYER_1_CONTROLS[key.toLowerCase()];
+                    const currentActiveDirection = snake1.direction;
+                    // Prevent immediate 180-degree turn
+                    if (!(currentActiveDirection.dx === -dx && currentActiveDirection.dy === -dy)) {
+                        player1InputQueue.current.push({ dx, dy });
+                    }
+                } else if (PLAYER_2_CONTROLS[key]) {
+                    const { dx, dy } = PLAYER_2_CONTROLS[key];
+                    const currentActiveDirection = snake2.direction;
+                    // Prevent immediate 180-degree turn
+                    if (!(currentActiveDirection.dx === -dx && currentActiveDirection.dy === -dy)) {
+                        player2InputQueue.current.push({ dx, dy });
+                    }
                 }
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [snake1.direction, snake2.direction, gameActive, message, resetGame]); 
+    }, [snake1.direction, snake2.direction, gameActive, message, resetGame]);
 
     useEffect(() => {
         let animationFrameId;
 
         const loop = (currentTime) => {
+            // If game is no longer active, stop the loop immediately
             if (!gameActive) {
-                cancelAnimationFrame(animationFrameId); 
+                cancelAnimationFrame(animationFrameId);
+                gameLoopRef.current = null; // Clear the ref
                 return;
             }
 
+            // Initialize lastUpdateTimeRef if it's the first frame
             if (lastUpdateTimeRef.current === 0) {
                 lastUpdateTimeRef.current = currentTime;
             }
 
             const deltaTime = currentTime - lastUpdateTimeRef.current;
 
-            if (deltaTime >= gameSpeed) { 
+            if (deltaTime >= gameSpeed) {
                 updateGame();
-                lastUpdateTimeRef.current = currentTime; 
+                lastUpdateTimeRef.current = currentTime;
             }
-            animationFrameId = requestAnimationFrame(loop); 
+            animationFrameId = requestAnimationFrame(loop);
+            gameLoopRef.current = animationFrameId; // Keep the ref updated with the current animation frame ID
         };
 
         if (gameActive) {
-            animationFrameId = requestAnimationFrame(loop); 
+            // Start the animation loop
+            animationFrameId = requestAnimationFrame(loop);
+            gameLoopRef.current = animationFrameId; // Store the initial animation frame ID
         } else {
-            cancelAnimationFrame(gameLoopRef.current);
+            // When gameActive becomes false, ensure any *currently running* loop is cancelled.
+            // This is especially important if the game state changes to inactive while a frame is pending.
+            if (gameLoopRef.current) {
+                cancelAnimationFrame(gameLoopRef.current);
+                gameLoopRef.current = null; // Clear the ref
+            }
         }
 
+        // Cleanup function for useEffect. This runs when the component unmounts
+        // or before the effect re-runs due to dependency changes.
         return () => {
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
+            if (gameLoopRef.current) { // Use gameLoopRef.current for robust cancellation
+                cancelAnimationFrame(gameLoopRef.current);
+                gameLoopRef.current = null; // Clear the ref
             }
         };
-    }, [gameActive, updateGame, gameSpeed]); 
+    }, [gameActive, updateGame, gameSpeed]);
+
+    const goBackToHomePage = () => {
+        // Ensure any lingering game loops are stopped before navigating away
+        if (gameLoopRef.current) {
+            cancelAnimationFrame(gameLoopRef.current);
+            gameLoopRef.current = null;
+        }
+        navigate('/dashboard'); // Navigate to the dashboard
+    };
 
     // --- Render ---
     return (
@@ -547,11 +616,21 @@ const App = () => {
                 <div className="text-2xl h-[60px] flex items-center justify-center text-center">
                     {message}
                 </div>
-                
+
                 <div className="text-xs mt-2 text-center mb-4">
-                    <p>P1: WASD | P2: UJHK</p>
-                    <p></p> {/* Updated instruction */}
+                    <p>P1 ({playerNames.player1}): WASD | P2 ({playerNames.player2}): UJHK</p>
+                    <p></p>
                 </div>
+
+                {/* Back to Home Button */}
+                {(!gameActive && (message.includes('Wins!') || message.includes('draw!'))) && ( // Show if game is not active AND game over message is present
+                    <button
+                        onClick={goBackToHomePage}
+                        className="font-['Press_Start_2P'] bg-gray-700 text-white border-2 border-gray-600 px-5 py-3 text-base rounded-lg cursor-pointer transition-all active:translate-y-0.5 active:shadow-inner shadow-[0_4px_#333] mt-4"
+                    >
+                        Back to Home
+                    </button>
+                )}
             </div>
         </div>
     );
