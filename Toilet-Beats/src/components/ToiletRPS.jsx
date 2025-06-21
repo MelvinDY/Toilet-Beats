@@ -80,7 +80,7 @@ export default function ToiletRPS() {
 
         alert(`${winner} wins this match and gets 1 toilet paper! 🧻`);
 
-        if (data.scores[winner] >= 3) {
+        if (data.scores[winner] >= 2) {
           navigate('/winner');
           return;
         }
