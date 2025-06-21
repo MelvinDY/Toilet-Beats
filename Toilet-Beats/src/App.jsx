@@ -1,12 +1,53 @@
-import React from 'react';
-import ToiletRPS from './ToiletRPS';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import Dashboard from './components/Dashboard';
+import PlayerSetup from './components/PlayerSetup';
+import RPS from './components/ToiletRPS';
+import SNP from './components/SlipNPong';
+import ToiletPaperWinner from './components/ToiletPaperWinner';
 
-function App() {
+// import your other components...
+
+import './App.css';
+
+const AppWrapper = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleSpaceReset = (e) => {
+      if (e.code === 'Space') {
+        localStorage.removeItem('players');
+        navigate('/');
+      }
+    };
+
+    window.addEventListener('keydown', handleSpaceReset);
+
+    return () => {
+      window.removeEventListener('keydown', handleSpaceReset);
+    };
+  }, [navigate]);
+
   return (
-    <div className="min-h-screen bg-black flex justify-center items-center">
-      <ToiletRPS />
-    </div>
+    <>
+      <main className="main-body">
+        <Routes>
+          <Route path="/" element={<PlayerSetup />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/RPS" element={<RPS />} />
+          <Route path="/winner" element={<ToiletPaperWinner />} />
+          <Route path="/SNP" element={<SNP />} />
+          {/* other game routes here */}
+        </Routes>
+      </main>
+    </>
   );
-}
+};
+
+const App = () => (
+  <Router>
+    <AppWrapper />
+  </Router>
+);
 
 export default App;

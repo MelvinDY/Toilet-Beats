@@ -1,0 +1,189 @@
+/* Import Google Font - Inter (if desired) */
+/* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap'); */
+
+/* CSS Variables for colors and fonts */
+:root {
+  --color-bg-dark: #1a202c; /* Equivalent to bg-gray-900 / bg-gray-800 */
+  --color-text-primary: #e2e8f0; /* Equivalent to text-gray-300 */
+  --color-text-secondary: #4a5568; /* Equivalent to text-gray-700 / text-gray-800 for winner message */
+
+  --color-tub-light: #f0f4f8; /* Off-white for the tub */
+  --color-tub-border: #a0aec0; /* Gray for tub border */
+  --color-drain-dark: #4a5568; /* Darker gray for drain */
+  --color-drain-grating: #a0aec0; /* Lighter gray for drain grating */
+
+  --color-decorative-block: #cbd5e0; /* Light gray for blocks */
+  --color-decorative-block-border: #a0aec0; /* Gray for block border */
+
+  --color-button-primary-base: #2563eb; /* Blue-600 */
+  --color-button-primary-hover: #1d4ed8; /* Blue-700 */
+  --color-button-primary-gradient-from: #3b82f6; /* Blue-500 */
+  --color-button-primary-gradient-to: #2563eb; /* Blue-700 */
+
+  --color-button-secondary-base: #dc2626; /* Red-600 */
+  --color-button-secondary-hover: #b91c1c; /* Red-700 */
+  --color-button-secondary-gradient-from: #ef4444; /* Red-500 */
+  --color-button-secondary-gradient-to: #dc2626; /* Red-700 */
+
+  --font-primary: 'Inter', sans-serif; /* Fallback to sans-serif if Inter is not loaded */
+}
+
+/* Base styles for the entire app container */
+.slipnpong-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh; /* Full viewport height */
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-primary);
+  font-family: var(--font-primary);
+  padding: 1rem; /* Equivalent to p-4 */
+  box-sizing: border-box; /* Ensure padding doesn't add to element's total width/height */
+}
+
+/* Canvas Wrapper Styling */
+.slipnpong-canvas-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 64rem; /* Equivalent to max-w-4xl */
+  height: calc(100vh - 4rem); /* Adjust height for padding and controls */
+  background-color: var(--color-bg-dark); /* Equivalent to bg-gray-800 */
+  border-radius: 0.5rem; /* Equivalent to rounded-lg */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Equivalent to shadow-xl */
+  overflow: hidden;
+  margin-bottom: 1.5rem; /* Space between canvas and controls */
+}
+
+@media (max-width: 640px) {
+  .slipnpong-canvas-wrapper {
+    height: calc(100vh - 8rem); /* More space for buttons on small screens */
+  }
+}
+
+/* Canvas itself */
+.slipnpong-canvas {
+  width: 100%;
+  height: 100%;
+  display: block; /* Remove extra space below canvas */
+  border-radius: 0.5rem; /* Inherit from wrapper, but explicitly set for good measure */
+}
+
+/* Game Controls Buttons Container */
+.slipnpong-controls {
+  display: flex;
+  flex-direction: column; /* Stack buttons on small screens */
+  gap: 1rem; /* Space between buttons */
+  margin-top: 1.5rem; /* Equivalent to mt-6 */
+}
+
+@media (min-width: 640px) { /* Equivalent to sm: */
+  .slipnpong-controls {
+    flex-direction: row; /* Row on larger screens */
+    gap: 2rem; /* Equivalent to sm:space-x-8 */
+  }
+}
+
+/* Base button styling */
+.slipnpong-button {
+  padding: 0.75rem 2rem; /* Equivalent to px-8 py-3 */
+  font-weight: 600; /* Equivalent to font-semibold */
+  border-radius: 0.5rem; /* Equivalent to rounded-lg */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Equivalent to shadow-md */
+  transition: all 0.3s ease-in-out; /* Equivalent to transition-all duration-300 ease-in-out */
+  transform: scale(1);
+  outline: none; /* Remove default focus outline */
+  position: relative;
+  overflow: hidden;
+  border: none; /* Remove default button border */
+  cursor: pointer;
+  color: white; /* Text color for buttons */
+}
+
+.slipnpong-button:hover {
+  transform: scale(1.05); /* Equivalent to hover:scale-105 */
+}
+
+.slipnpong-button:focus {
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5); /* Focus ring equivalent */
+}
+
+/* Primary Button Specifics */
+.primary-button {
+  background-color: var(--color-button-primary-base); /* Blue-600 */
+}
+
+.primary-button:hover {
+  background-color: var(--color-button-primary-hover); /* Blue-700 */
+}
+
+.primary-button .button-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom right, var(--color-button-primary-gradient-from), var(--color-button-primary-gradient-to));
+  opacity: 0;
+  transition: opacity 0.3s;
+  border-radius: 0.5rem;
+}
+
+.primary-button:hover .button-gradient {
+  opacity: 1;
+}
+
+/* Secondary Button Specifics */
+.secondary-button {
+  background-color: var(--color-button-secondary-base); /* Red-600 */
+}
+
+.secondary-button:hover {
+  background-color: var(--color-button-secondary-hover); /* Red-700 */
+}
+
+.secondary-button .button-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom right, var(--color-button-secondary-gradient-from), var(--color-button-secondary-gradient-to));
+  opacity: 0;
+  transition: opacity 0.3s;
+  border-radius: 0.5rem;
+}
+
+.secondary-button:hover .button-gradient {
+  opacity: 1;
+}
+
+.button-text {
+  position: relative;
+  z-index: 10;
+}
+
+/* Overlay for Paused/Winner message */
+.slipnpong-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.75); /* Equivalent to bg-black bg-opacity-75 */
+  z-index: 20; /* Ensure it's above the canvas */
+  border-radius: 0.5rem; /* Match canvas wrapper */
+}
+
+.slipnpong-message {
+  color: white;
+  font-size: 3rem; /* Equivalent to text-5xl */
+  font-weight: 700; /* Equivalent to font-bold */
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; /* Equivalent to animate-pulse */
+  text-align: center;
+  padding: 1rem; /* Ensure text doesn't touch edges */
+}
+
+/* Pulse animation for the message */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
