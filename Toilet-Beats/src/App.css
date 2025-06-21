@@ -2,92 +2,53 @@ html, body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-}
-
-body {
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  background-color: #f0f0f0;
+  background-image:
+    linear-gradient(45deg, #f5f5f5 1px, transparent 1px),
+    linear-gradient(-45deg, #f5f5f5 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-repeat: repeat;
   background-attachment: fixed;
-  min-height: 100vh;
-  width: 100vw;
-  justify-content: center;
+  justify-content: center
 }
 
-* {
-  box-sizing: border-box;
-  max-width: 100%;
-}
-
-/* Dashboard Layout */
-.dashboard {
+/* Main app container */
+.app-main-body {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  background: rgba(0, 0, 0, 0.5); /* semi-transparent overlay */
+  min-height: 100vh;
   padding: 2rem;
-  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
   margin: 2rem;
-  box-shadow: 0 0 20px #663300;
 }
 
-/* Player Info */
-.players p {
-  font-size: 1.5rem;
-  margin: 0.5rem 0;
-}
-
-/* Game Links */
-.game-links h2 {
-  margin-bottom: 1rem;
-  font-size: 2rem;
-}
-
-.game-links ul {
-  list-style: none;
-  padding: 0;
-}
-
-.game-links li {
-  margin: 12px 0;
-}
-
-.game-links a {
-  text-decoration: none;
-  font-size: 1.3rem;
-  color: #ffcc00;
-  background: #3e2723;
-  padding: 0.5rem 1rem;
-  border-radius: 12px;
-  transition: background 0.3s ease;
-}
-
-.game-links a:hover {
-  background: #5d4037;
-}
-
-/* Winner Button */
-.finish-btn {
-  margin-top: 2rem;
-  padding: 0.8rem 1.5rem;
-  font-size: 1.2rem;
-  background-color: #ffeb3b;
-  color: #000;
+/* General buttons */
+button {
+  background-color: #00b894;
+  color: white;
   border: none;
-  border-radius: 50px;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  border-radius: 8px;
   cursor: pointer;
-  box-shadow: 0 0 10px #fff;
-  transition: transform 0.2s ease;
+  transition: background-color 0.2s ease-in-out;
 }
 
-.finish-btn:hover {
-  transform: scale(1.05);
+button:hover {
+  background-color: #019875;
 }
 
-html, body {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
+/* Link styles */
+a {
+  text-decoration: none;
+  color: #2d3436;
+}
+
+a:hover {
+  color: #636e72;
 }

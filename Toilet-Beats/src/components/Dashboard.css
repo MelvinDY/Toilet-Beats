@@ -1,0 +1,90 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 248, 220, 0.95); /* light toilet-paper color */
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  margin: 2rem auto;
+  max-width: 800px;
+  box-shadow: 0 0 20px rgba(102, 51, 0, 0.5);
+  text-align: center;
+}
+
+/* Headings */
+.dashboard h1 {
+  font-size: 2.5rem;
+  color: #6d4c41;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard h2 {
+  font-size: 1.8rem;
+  color: #8d6e63;
+  margin-bottom: 1.5rem;
+}
+
+/* Player Score Section */
+.players p {
+  font-size: 1.4rem;
+  color: #4e342e;
+  margin: 0.5rem 0;
+  background-color: #fff8e1;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  box-shadow: inset 0 0 4px rgba(0,0,0,0.1);
+}
+
+/* Game Links */
+.game-links {
+  margin-top: 2rem;
+}
+
+.game-links h2 {
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
+  color: #3e2723;
+}
+
+.game-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.game-links li {
+  margin: 12px 0;
+}
+
+.game-links a {
+  text-decoration: none;
+  font-size: 1.2rem;
+  color: #ffcc00;
+  background: #3e2723;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.game-links a:hover {
+  background-color: #5d4037;
+}
+
+/* Finish Button */
+.finish-btn {
+  margin-top: 2.5rem;
+  padding: 0.8rem 1.5rem;
+  font-size: 1.2rem;
+  background-color: #ffe57f;
+  color: #3e2723;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 0 10px #ffeb3b;
+  transition: transform 0.2s ease;
+}
+
+.finish-btn:hover {
+  transform: scale(1.05);
+}
