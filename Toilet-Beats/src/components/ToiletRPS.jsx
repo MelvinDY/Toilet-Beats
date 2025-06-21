@@ -66,6 +66,8 @@ export default function ToiletRPS() {
     }
   }, [p1Choice, p2Choice]);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     const checkScoreUpdate = () => {
       if (wins.p1 === 3 || wins.p2 === 3) {
@@ -78,13 +80,17 @@ export default function ToiletRPS() {
 
         alert(`${winner} wins this match and gets 1 toilet paper! 🧻`);
 
-        // Reset for new match
+        if (data.scores[winner] >= 3) {
+          navigate('/winner');
+          return;
+        }
+
         setWins({ p1: 0, p2: 0 });
       }
     };
 
     checkScoreUpdate();
-  }, [wins, players]);
+  }, [wins, players, navigate]);
 
   const resetRound = () => {
     setP1Choice(null);
@@ -92,38 +98,36 @@ export default function ToiletRPS() {
     setResult('');
   };
 
-  const navigate = useNavigate();
-
   const goBackToDashboard = () => {
     setWins({ p1: 0, p2: 0 });
     navigate('/dashboard');
   };
 
   return (
-    <div className="toilet-container">
-      <h2>🚽 Toilet RPS: Wipe vs Flush vs Plunge</h2>
+    <div className="toilet-rps-container">
+      <h2 className="toilet-title">🚽 Toilet RPS: Wipe vs Flush vs Plunge</h2>
 
-      <p style={{ color: 'black' }}>🎯 First to 3 wins gets 1 toilet paper!</p>
+      <p className="toilet-subtitle">🎯 First to 3 wins gets 1 toilet paper!</p>
 
-      <div className="graph-triangle">
-        <div className="graph-node node-wipe">🧻</div>
-        <div className="graph-node node-flush">🚽</div>
-        <div className="graph-node node-plunge">🪠</div>
+      <div className="toilet-graph">
+        <div className="toilet-node toilet-node-wipe">🧻</div>
+        <div className="toilet-node toilet-node-flush">🚽</div>
+        <div className="toilet-node toilet-node-plunge">🪠</div>
 
-        <div className="arrow arrow-wipe-plunge">➤</div>
-        <div className="arrow arrow-plunge-flush">➤</div>
-        <div className="arrow arrow-flush-wipe">➤</div>
+        <div className="toilet-arrow toilet-arrow-wipe-plunge">➤</div>
+        <div className="toilet-arrow toilet-arrow-plunge-flush">➤</div>
+        <div className="toilet-arrow toilet-arrow-flush-wipe">➤</div>
       </div>
 
-      <p className="player-status">
+      <p className="toilet-status">
         {players.player1}: {p1Choice ? '✅ Chosen' : '⏳ Waiting...'} (Wins: {wins.p1})
       </p>
-      <p className="player-status">
+      <p className="toilet-status">
         {players.player2}: {p2Choice ? '✅ Chosen' : '⏳ Waiting...'} (Wins: {wins.p2})
       </p>
 
       {result && (
-        <div className="result-box">
+        <div className="toilet-result-box">
           <p>{players.player1} chose: {EMOJIS[p1Choice]} {p1Choice}</p>
           <p>{players.player2} chose: {EMOJIS[p2Choice]} {p2Choice}</p>
           <p><strong>{result}</strong></p>
@@ -131,12 +135,11 @@ export default function ToiletRPS() {
       )}
 
       {(p1Choice && p2Choice) && (
-        <button onClick={resetRound}>Play Next Round</button>
+        <button className="toilet-button" onClick={resetRound}>Play Next Round</button>
       )}
-      <button onClick={goBackToDashboard} className="back-btn">
+      <button className="toilet-button" onClick={goBackToDashboard}>
         🚽 I’m flushed… Take me back to the bowl
       </button>
-     
     </div>
   );
 }
