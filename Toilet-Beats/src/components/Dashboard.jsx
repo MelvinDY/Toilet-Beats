@@ -42,7 +42,7 @@ const Dashboard = () => {
         <ul>
           <li><Link to="/RPS">✊💩 Toilet RPS</Link></li>
           <li><Link to="/Rhythm">💩 TemPoop</Link></li>
-          <li><Link to="/game/game3">🧻 Game 3</Link></li>
+          <li><Link to="/SNP">🧻 SlipNPong</Link></li>
           <li><Link to="/game/game4">🪠 Game 4</Link></li>
         </ul>
       </div>
