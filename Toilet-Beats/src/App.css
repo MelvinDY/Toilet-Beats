@@ -1,42 +1,93 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+body {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  width: 100vw;
+  justify-content: center;
+}
+
+* {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+/* Dashboard Layout */
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  background: rgba(0, 0, 0, 0.5); /* semi-transparent overlay */
+  padding: 2rem;
+  border-radius: 20px;
+  margin: 2rem;
+  box-shadow: 0 0 20px #663300;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Player Info */
+.players p {
+  font-size: 1.5rem;
+  margin: 0.5rem 0;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Game Links */
+.game-links h2 {
+  margin-bottom: 1rem;
+  font-size: 2rem;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.game-links ul {
+  list-style: none;
+  padding: 0;
 }
 
-.card {
-  padding: 2em;
+.game-links li {
+  margin: 12px 0;
 }
 
-.read-the-docs {
-  color: #888;
+.game-links a {
+  text-decoration: none;
+  font-size: 1.3rem;
+  color: #ffcc00;
+  background: #3e2723;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  transition: background 0.3s ease;
+}
+
+.game-links a:hover {
+  background: #5d4037;
+}
+
+/* Winner Button */
+.finish-btn {
+  margin-top: 2rem;
+  padding: 0.8rem 1.5rem;
+  font-size: 1.2rem;
+  background-color: #ffeb3b;
+  color: #000;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 0 10px #fff;
+  transition: transform 0.2s ease;
+}
+
+.finish-btn:hover {
+  transform: scale(1.05);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
