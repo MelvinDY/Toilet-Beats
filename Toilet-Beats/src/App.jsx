@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import Dashboard from './components/Dashboard';
 import PlayerSetup from './components/PlayerSetup';
 import RPS from './components/ToiletRPS';
+import ToiletPaperWinner from './components/ToiletPaperWinner';
+
 // import your other components...
 
 import './App.css';
@@ -32,6 +34,7 @@ const AppWrapper = () => {
           <Route path="/" element={<PlayerSetup />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/RPS" element={<RPS />} />
+          <Route path="/winner" element={<ToiletPaperWinner />} />
           {/* other game routes here */}
         </Routes>
       </main>

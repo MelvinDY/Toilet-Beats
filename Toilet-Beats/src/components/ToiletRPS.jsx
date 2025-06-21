@@ -78,6 +78,11 @@ export default function ToiletRPS() {
 
         alert(`${winner} wins this match and gets 1 toilet paper! 🧻`);
 
+        if (data.scores[winner] >= 3) {
+          navigate('/winner');
+          return;
+        }
+
         // Reset for new match
         setWins({ p1: 0, p2: 0 });
       }
