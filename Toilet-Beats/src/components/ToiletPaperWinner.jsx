@@ -22,23 +22,40 @@ export default function ToiletPaperWinner() {
     'Unknown Player';
 
   useEffect(() => {
-    const duration = 2 * 1000;
-    const end = Date.now() + duration;
+  const duration = 2 * 1000;
+  const end = Date.now() + duration;
 
-    (function frame() {
-      confetti({ particleCount: 5, spread: 70, origin: { y: 0.6, x: 0.0 } });
-      confetti({ particleCount: 5, spread: 70, origin: { y: 0.6, x: 1.0 } });
-      if (Date.now() < end) requestAnimationFrame(frame);
-    })();
+  (function frame() {
+    confetti({ particleCount: 5, spread: 70, origin: { y: 0.6, x: 0.0 } });
+    confetti({ particleCount: 5, spread: 70, origin: { y: 0.6, x: 1.0 } });
+    if (Date.now() < end) requestAnimationFrame(frame);
+  })();
 
-    if (winnerKey) {
-      fetch('http://192.168.11.109:3001/dispense', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ winner: winnerKey }) // Only "p1" or "p2"
-      }).catch((err) => console.error('🧻 Failed to notify dispenser:', err));
-    }
-  }, [winnerKey]);
+  const postWinner = () => {
+    fetch('http://192.168.11.109:3001/dispense', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ winner: winnerKey })
+    }).then(() => {
+      console.log('🧻 Dispenser notified');
+    }).catch((err) => {
+      console.error('🧻 Failed to notify dispenser:', err);
+    });
+  };
+
+  if (winnerKey) {
+      postWinner(winnerKey);
+      console.log(`🏆 Winner set to ${winnerKey} - will stay for 5 seconds...`);
+      
+      // After 5 seconds, reset to null
+      const resetTimeout = setTimeout(() => {
+        console.log('🔄 Winner reset to null');
+      }, 5000);
+      
+      // Clean up timeout on component unmount
+      return () => clearTimeout(resetTimeout);
+  }
+}, [winnerKey]);
 
   return (
     <div className="toilet-winner-page">
