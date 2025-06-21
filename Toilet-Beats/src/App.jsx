@@ -6,6 +6,7 @@ import RPS from './components/ToiletRPS';
 import Rhythm from './components/RhythmGame';
 import SNP from './components/SlipNPong';
 import ToiletPaperWinner from './components/ToiletPaperWinner';
+import Snake from './components/SnakeGame';
 import './App.css';
 
 const AppWrapper = () => {
@@ -39,7 +40,7 @@ const AppWrapper = () => {
         <Route path="/Rhythm" element={<Rhythm />} />
         <Route path="/SNP" element={<SNP />} />
         <Route path="/winner" element={<ToiletPaperWinner />} />
-
+        <Route path="/Snake" element={<Snake />} />
       </Routes>
     </div>
   );
