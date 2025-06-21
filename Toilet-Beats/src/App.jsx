@@ -5,6 +5,7 @@ import PlayerSetup from './components/PlayerSetup';
 import RPS from './components/ToiletRPS';
 import Rhythm from './components/RhythmGame';
 import ToiletPaperWinner from './components/ToiletPaperWinner';
+import Snake from './components/SnakeGame';
 import './App.css';
 
 const AppWrapper = () => {
