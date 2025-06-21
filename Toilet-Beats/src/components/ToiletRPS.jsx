@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './ToiletRPS.css';
 
 const EMOJIS = {
@@ -14,20 +15,34 @@ const getResult = (p1, p2) => {
     (p1 === 'Flush' && p2 === 'Wipe') ||
     (p1 === 'Plunge' && p2 === 'Flush')
   ) {
-    return 'Player 1 Wins!';
+    return 'Player 1';
   }
-  return 'Player 2 Wins!';
+  return 'Player 2';
 };
 
 export default function ToiletRPS() {
   const [p1Choice, setP1Choice] = useState(null);
   const [p2Choice, setP2Choice] = useState(null);
   const [result, setResult] = useState('');
+  const [wins, setWins] = useState({ p1: 0, p2: 0 });
+
+  const players = JSON.parse(localStorage.getItem('players')) || {
+    player1: 'Player 1',
+    player2: 'Player 2',
+    scores: { 'Player 1': 0, 'Player 2': 0 }
+  };
+
+  const handleWin = (winner) => {
+    if (winner === 'Player 1') {
+      setWins((prev) => ({ ...prev, p1: prev.p1 + 1 }));
+    } else if (winner === 'Player 2') {
+      setWins((prev) => ({ ...prev, p2: prev.p2 + 1 }));
+    }
+  };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (p1Choice && p2Choice) return;
-
       const key = e.key.toLowerCase();
 
       if (!p1Choice && ['a', 'w', 'd'].includes(key)) {
@@ -46,21 +61,50 @@ export default function ToiletRPS() {
   useEffect(() => {
     if (p1Choice && p2Choice) {
       const outcome = getResult(p1Choice, p2Choice);
-      setResult(outcome);
+      if (outcome !== 'Draw') handleWin(outcome);
+      setResult(`${outcome === 'Draw' ? 'Draw!' : `${outcome} Wins!`}`);
     }
   }, [p1Choice, p2Choice]);
 
-  const resetGame = () => {
+  useEffect(() => {
+    const checkScoreUpdate = () => {
+      if (wins.p1 === 3 || wins.p2 === 3) {
+        const winner = wins.p1 === 3 ? players.player1 : players.player2;
+
+        // Update localStorage
+        const data = { ...players };
+        data.scores[winner] = (data.scores[winner] || 0) + 1;
+        localStorage.setItem('players', JSON.stringify(data));
+
+        alert(`${winner} wins this match and gets 1 toilet paper! 🧻`);
+
+        // Reset for new match
+        setWins({ p1: 0, p2: 0 });
+      }
+    };
+
+    checkScoreUpdate();
+  }, [wins, players]);
+
+  const resetRound = () => {
     setP1Choice(null);
     setP2Choice(null);
     setResult('');
+  };
+
+  const navigate = useNavigate();
+
+  const goBackToDashboard = () => {
+    setWins({ p1: 0, p2: 0 });
+    navigate('/dashboard');
   };
 
   return (
     <div className="toilet-container">
       <h2>🚽 Toilet RPS: Wipe vs Flush vs Plunge</h2>
 
-      {/* Visual Relationship Graph */}
+      <p style={{ color: 'black' }}>🎯 First to 3 wins gets 1 toilet paper!</p>
+
       <div className="graph-triangle">
         <div className="graph-node node-wipe">🧻</div>
         <div className="graph-node node-flush">🚽</div>
@@ -71,25 +115,28 @@ export default function ToiletRPS() {
         <div className="arrow arrow-flush-wipe">➤</div>
       </div>
 
-
       <p className="player-status">
-        Player 1: {p1Choice ? '✅ Has chosen' : '⏳ Waiting...'}
+        {players.player1}: {p1Choice ? '✅ Chosen' : '⏳ Waiting...'} (Wins: {wins.p1})
       </p>
       <p className="player-status">
-        Player 2: {p2Choice ? '✅ Has chosen' : '⏳ Waiting...'}
+        {players.player2}: {p2Choice ? '✅ Chosen' : '⏳ Waiting...'} (Wins: {wins.p2})
       </p>
 
       {result && (
         <div className="result-box">
-          <p>Player 1 chose: {EMOJIS[p1Choice]} {p1Choice}</p>
-          <p>Player 2 chose: {EMOJIS[p2Choice]} {p2Choice}</p>
+          <p>{players.player1} chose: {EMOJIS[p1Choice]} {p1Choice}</p>
+          <p>{players.player2} chose: {EMOJIS[p2Choice]} {p2Choice}</p>
           <p><strong>{result}</strong></p>
         </div>
       )}
 
       {(p1Choice && p2Choice) && (
-        <button onClick={resetGame}>Play Again</button>
+        <button onClick={resetRound}>Play Next Round</button>
       )}
+      <button onClick={goBackToDashboard} className="back-btn">
+        🚽 I’m flushed… Take me back to the bowl
+      </button>
+     
     </div>
   );
 }
