@@ -12,8 +12,8 @@ export default function ToiletPaperWinner() {
   const { player1, player2, scores } = data;
 
   const winnerKey =
-    player1 && scores[player1] >= 3 ? 'p1' :
-    player2 && scores[player2] >= 3 ? 'p2' :
+    player1 && scores[player1] >= 2 ? 'p1' :
+    player2 && scores[player2] >= 2 ? 'p2' :
     null;
 
   const winnerName =
