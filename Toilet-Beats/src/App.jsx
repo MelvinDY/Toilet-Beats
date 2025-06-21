@@ -4,10 +4,8 @@ import Dashboard from './components/Dashboard';
 import PlayerSetup from './components/PlayerSetup';
 import RPS from './components/ToiletRPS';
 import SNP from './components/SlipNPong';
+import Rhythm from './components/RhythmGame';
 import ToiletPaperWinner from './components/ToiletPaperWinner';
-
-// import your other components...
-
 import './App.css';
 
 const AppWrapper = () => {
@@ -29,18 +27,16 @@ const AppWrapper = () => {
   }, [navigate]);
 
   return (
-    <>
-      <main className="main-body">
-        <Routes>
-          <Route path="/" element={<PlayerSetup />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/RPS" element={<RPS />} />
-          <Route path="/winner" element={<ToiletPaperWinner />} />
-          <Route path="/SNP" element={<SNP />} />
-          {/* other game routes here */}
-        </Routes>
-      </main>
-    </>
+    <div className="app-main-body">
+      <Routes>
+        <Route path="/" element={<PlayerSetup />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/RPS" element={<RPS />} />
+        <Route path="/Rhythm" element={<Rhythm />} />
+        <Route path="/winner" element={<ToiletPaperWinner />} />
+        <Route path="/SNP" element={<SNP />} />
+      </Routes>
+    </div>
   );
 };
 

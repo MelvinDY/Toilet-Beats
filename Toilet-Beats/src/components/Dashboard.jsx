@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import poopMusic from '../assets/PooPoo.mp3';
-
+import './Dashboard.css';
 const Dashboard = () => {
   const data = JSON.parse(localStorage.getItem('players')) || {
     player1: 'Player 1',
@@ -41,7 +41,7 @@ const Dashboard = () => {
         <h2>Choose a Poop Game:</h2>
         <ul>
           <li><Link to="/RPS">✊💩 Toilet RPS</Link></li>
-          <li><Link to="/game/game2">💩 Game 2</Link></li>
+          <li><Link to="/Rhythm">💩 TemPoop</Link></li>
           <li><Link to="/SNP">🧻 SlipNPong</Link></li>
           <li><Link to="/game/game4">🪠 Game 4</Link></li>
         </ul>
