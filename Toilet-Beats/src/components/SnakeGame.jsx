@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom'
 
 // --- Constants ---
 const GRID_SIZE = 20;
@@ -63,12 +64,9 @@ const getNormalizedDirection = (p1, p2) => {
     return { dx, dy };
 };
 
-/**
- * Rotates a Tailwind CSS rounded corner class 90 degrees clockwise (right).
- * This function applies the user's requested visual "rotation" to the corner rounding.
- * @param {string} className - The original Tailwind CSS rounded corner class (e.g., 'rounded-tl-md').
- * @returns {string} The new Tailwind CSS class after rotating the rounding.
- */
+// This function is present in the original code but not directly used in Board,
+// but it's okay to keep it if there's a future use case or it's a leftover.
+// Leaving it as-is based on user's provided code structure.
 const rotateCornerBy90Right = (className) => {
     switch (className) {
         case 'rounded-tl-md': return 'rounded-tr-md'; // Top-Left -> Top-Right
@@ -130,7 +128,7 @@ const getInitialSnake2State = (existingBodies = []) => {
     if (secondSegment.y >= TILE_COUNT) secondSegment.y = 0;
 
     body.push(secondSegment);
-    
+
     return {
         body: body,
         direction: direction,
@@ -200,7 +198,7 @@ const ToiletPaperRollSVG = ({ fillColor, isHead, direction }) => {
  * @param {{body: Array<{x: number, y: number}>, direction: {dx: number, dy: number}}} props.snake2 - Snake 2 data.
  * @returns {JSX.Element} The game board.
  */
-const Board = ({ snake1, snake2 }) => { 
+const Board = ({ snake1, snake2 }) => {
 
     /**
      * Calculates the normalized direction (dx, dy where dx,dy are -1, 0, or 1)
@@ -265,8 +263,8 @@ const Board = ({ snake1, snake2 }) => {
                 </div>
             );
         } else if (isTail) {
-            const prevSegment = body[index - 1]; 
-            const approachDir = getNormalizedDirection(prevSegment, segment); 
+            const prevSegment = body[index - 1];
+            const approachDir = getNormalizedDirection(prevSegment, segment);
 
             let tailRoundedClass = '';
             if (approachDir.dx === 1) tailRoundedClass = 'rounded-r-md';
@@ -282,32 +280,32 @@ const Board = ({ snake1, snake2 }) => {
                 />
             );
         } else {
-            const prevSegmentInSequence = body[index + 1]; 
-            const nextSegmentInSequence = body[index - 1]; 
+            const prevSegmentInSequence = body[index + 1];
+            const nextSegmentInSequence = body[index - 1];
 
-            const entryDir = getNormalizedDirection(prevSegmentInSequence, segment); 
-            const exitDir = getNormalizedDirection(segment, nextSegmentInSequence); 
+            const entryDir = getNormalizedDirection(prevSegmentInSequence, segment);
+            const exitDir = getNormalizedDirection(segment, nextSegmentInSequence);
 
             let cornerClasses = '';
             if (entryDir.dx !== exitDir.dx || entryDir.dy !== exitDir.dy) {
-                if (entryDir.dx === 0 && entryDir.dy === 1) { 
-                    if (exitDir.dx === 1) cornerClasses = 'rounded-tl-md'; 
-                    if (exitDir.dx === -1) cornerClasses = 'rounded-tr-md'; 
-                } else if (entryDir.dx === 0 && entryDir.dy === -1) { 
-                    if (exitDir.dx === 1) cornerClasses = 'rounded-bl-md'; 
-                    if (exitDir.dx === -1) cornerClasses = 'rounded-br-md'; 
-                } else if (entryDir.dx === 1 && entryDir.dy === 0) { 
-                    if (exitDir.dy === 1) cornerClasses = 'rounded-tl-md'; 
-                    if (exitDir.dy === -1) cornerClasses = 'rounded-bl-md'; 
-                } else if (entryDir.dx === -1 && entryDir.dy === 0) { 
-                    if (exitDir.dy === 1) cornerClasses = 'rounded-tr-md'; 
-                    if (exitDir.dy === -1) cornerClasses = 'rounded-br-md'; 
+                if (entryDir.dx === 0 && entryDir.dy === 1) {
+                    if (exitDir.dx === 1) cornerClasses = 'rounded-tl-md';
+                    if (exitDir.dx === -1) cornerClasses = 'rounded-tr-md';
+                } else if (entryDir.dx === 0 && entryDir.dy === -1) {
+                    if (exitDir.dx === 1) cornerClasses = 'rounded-bl-md';
+                    if (exitDir.dx === -1) cornerClasses = 'rounded-br-md';
+                } else if (entryDir.dx === 1 && entryDir.dy === 0) {
+                    if (exitDir.dy === 1) cornerClasses = 'rounded-tl-md';
+                    if (exitDir.dy === -1) cornerClasses = 'rounded-bl-md';
+                } else if (entryDir.dx === -1 && entryDir.dy === 0) {
+                    if (exitDir.dy === 1) cornerClasses = 'rounded-tr-md';
+                    if (exitDir.dy === -1) cornerClasses = 'rounded-br-md';
                 }
             }
             return (
                 <div
                     key={`seg-${index}`}
-                    className={`${segmentBaseClass} ${cornerClasses}`} 
+                    className={`${segmentBaseClass} ${cornerClasses}`}
                     style={{ backgroundColor: bodyColor, gridColumn: segment.x + 1, gridRow: segment.y + 1 }} // Apply color directly
                 />
             );
@@ -339,64 +337,87 @@ const Board = ({ snake1, snake2 }) => {
 };
 
 
+
 // --- Main App Component ---
 const App = () => {
-    // --- State Management ---
+    const navigate = useNavigate();
+
+    const [playerNames] = useState(() => {
+        try {
+            const storedPlayers = localStorage.getItem('players');
+            return storedPlayers ? JSON.parse(storedPlayers) : { player1: 'Player 1', player2: 'Player 2' };
+        } catch (e) {
+            console.error("Failed to parse players from localStorage", e);
+            return { player1: 'Player 1', player2: 'Player 2' };
+        }
+    });
+
     const [snake1, setSnake1] = useState(() => getInitialSnake1State());
     const [snake2, setSnake2] = useState(() => getInitialSnake2State());
     const [gameActive, setGameActive] = useState(false);
-    const [message, setMessage] = useState('Outsmart your opponent with the power of Toilet Paper!\nPress Shift to start'); // Updated initial message
+    const [message, setMessage] = useState('Outsmart your opponent with the power of Toilet Paper!\nPress Shift to start');
 
-    // Using useRef for game loop to prevent re-renders from affecting the interval
-    const gameLoopRef = useRef(null);
+    const gameLoopRef = useRef(null); // Ref to hold the requestAnimationFrame ID
     const lastUpdateTimeRef = useRef(0);
-    const [gameSpeed, setGameSpeed] = useState(GAME_SPEED); 
+    const [gameSpeed] = useState(GAME_SPEED); // gameSpeed is constant, so no need for setGameSpeed if it doesn't change
 
-    // --- Input Queues ---
     const player1InputQueue = useRef([]);
     const player2InputQueue = useRef([]);
 
-
     // --- Game Logic ---
     const resetGame = useCallback(() => {
-        setGameActive(false); 
+        // Clear any existing animation frame before starting a new game
+        if (gameLoopRef.current) {
+            cancelAnimationFrame(gameLoopRef.current);
+            gameLoopRef.current = null;
+        }
+
         const initialSnake1 = getInitialSnake1State();
+        // Pass snake1's body to avoid initial overlap for snake2
         const initialSnake2 = getInitialSnake2State(initialSnake1.body);
 
         setSnake1(initialSnake1);
         setSnake2(initialSnake2);
-        setGameSpeed(GAME_SPEED);
+        setMessage('');
         player1InputQueue.current = [];
         player2InputQueue.current = [];
-        setMessage(''); 
-        setGameActive(true); 
-    }, []);
+        setGameActive(true); // Start the game
+    }, []); // No dependencies for resetGame if it's truly resetting to initial state
 
     const handleGameOver = useCallback((winner) => {
-        setGameActive(false);
-        cancelAnimationFrame(gameLoopRef.current); 
+        setGameActive(false); // This will trigger the useEffect cleanup
         if (winner === 'draw') {
             setMessage('It\'s a draw! Restrategise and press Shift to crown a victor!');
         } else {
-            const winnerName = winner === 'player1' ? 'Player 1' : 'Player 2';
-            setMessage(`${winnerName} Wins! Congrats, ${winnerName} is one step closer to earning your TP`);
+            const winnerName = winner === 'player1' ? playerNames.player1 : playerNames.player2;
+            const players = JSON.parse(localStorage.getItem('players')) || {
+            player1: 'Player 1',
+            player2: 'Player 2',
+            scores: { 'Player 1': 0, 'Player 2': 0 }
+            };
+            const data = { ...playerNames };
+            data.scores[winnerName] = (data.scores[winnerName] || 0) + 1;
+            localStorage.setItem('players', JSON.stringify(data));
+            setMessage(`${winnerName} Wins! Congrats, ${winnerName} is one step closer to earning their TP`);
         }
-    }, []);
+        // Do not call cancelAnimationFrame here directly; let useEffect handle it.
+    }, [playerNames]); // playerNames is a dependency for the message
 
     const getNextSnakeState = useCallback((snake, inputQueueRef) => {
-        if (!snake.isAlive) return { updatedSnake: snake }; 
+        if (!snake.isAlive) return { updatedSnake: snake };
 
         let effectiveDirection = snake.direction;
 
         if (inputQueueRef.current.length > 0) {
-            const nextQueuedDirection = inputQueueRef.current[0]; 
+            const nextQueuedDirection = inputQueueRef.current[0];
+            // Prevent immediately reversing direction
             if (!(snake.direction.dx === -nextQueuedDirection.dx && snake.direction.dy === -nextQueuedDirection.dy)) {
-                effectiveDirection = inputQueueRef.current.shift(); 
+                effectiveDirection = inputQueueRef.current.shift();
             } else {
-                inputQueueRef.current.shift();
+                inputQueueRef.current.shift(); // Discard invalid input
             }
         }
-        
+
         const updatedSnake = { ...snake, direction: effectiveDirection };
 
         let head = {
@@ -404,17 +425,27 @@ const App = () => {
             y: updatedSnake.body[0].y + updatedSnake.direction.dy
         };
 
+        // Wraparound logic
         if (head.x < 0) head.x = TILE_COUNT - 1;
         if (head.x >= TILE_COUNT) head.x = 0;
         if (head.y < 0) head.y = TILE_COUNT - 1;
         if (head.y >= TILE_COUNT) head.y = 0;
 
         const newBody = [head, ...updatedSnake.body];
+        // Note: Your current implementation allows snakes to grow infinitely,
+        // which can lead to performance issues or crashes over very long games due to memory usage.
+        // If the game intends snakes to have a fixed length (like classic Snake),
+        // you would need to slice the array to remove the tail segment:
+        // const newBody = [head, ...updatedSnake.body.slice(0, updatedSnake.body.length - 1)];
+        // If it's a Tron-like game where trails are permanent and grow, the current implementation is correct.
 
-        return { updatedSnake: { ...updatedSnake, body: newBody } }; 
-    }, []); 
+        return { updatedSnake: { ...updatedSnake, body: newBody } };
+    }, []);
 
     const updateGame = useCallback(() => {
+        // Prevent updates if the game is not active
+        if (!gameActive) return;
+
         const { updatedSnake: tempSnake1 } = getNextSnakeState(snake1, player1InputQueue);
         const { updatedSnake: tempSnake2 } = getNextSnakeState(snake2, player2InputQueue);
 
@@ -424,13 +455,15 @@ const App = () => {
         const head1 = tempSnake1.body[0];
         const head2 = tempSnake2.body[0];
 
-        // Self-collision 
+        // --- Collision Detection ---
+        // Self-collision for Snake 1
         for (let i = 1; i < tempSnake1.body.length; i++) {
             if (head1.x === tempSnake1.body[i].x && head1.y === tempSnake1.body[i].y) {
                 s1Alive = false;
                 break;
             }
         }
+        // Self-collision for Snake 2
         for (let i = 1; i < tempSnake2.body.length; i++) {
             if (head2.x === tempSnake2.body[i].x && head2.y === tempSnake2.body[i].y) {
                 s2Alive = false;
@@ -438,23 +471,26 @@ const App = () => {
             }
         }
 
-        // Cross-collision 
+        // Cross-collision (Snake 1 head into Snake 2 body)
         if (tempSnake2.body.some(seg => seg.x === head1.x && seg.y === head1.y)) {
             s1Alive = false;
         }
+        // Cross-collision (Snake 2 head into Snake 1 body)
         if (tempSnake1.body.some(seg => seg.x === head2.x && seg.y === head2.y)) {
             s2Alive = false;
         }
 
-        // Head-on collision 
+        // Head-on collision
         if (head1.x === head2.x && head1.y === head2.y) {
             s1Alive = false;
             s2Alive = false;
         }
 
+        // Update states
         setSnake1(s => ({ ...tempSnake1, isAlive: s1Alive }));
         setSnake2(s => ({ ...tempSnake2, isAlive: s2Alive }));
 
+        // Check for game over condition *after* setting new states
         if (!s1Alive && !s2Alive) {
             handleGameOver('draw');
         } else if (!s1Alive) {
@@ -463,75 +499,102 @@ const App = () => {
             handleGameOver('player1');
         }
 
-    }, [snake1, snake2, getNextSnakeState, handleGameOver]); 
+    }, [snake1, snake2, gameActive, getNextSnakeState, handleGameOver]); // Added gameActive to dependencies
 
     // --- Effects ---
     useEffect(() => {
         const handleKeyDown = (e) => {
             const key = e.key;
 
-            if (key === 'Shift') { 
-                e.preventDefault(); 
-                if (!gameActive || message.includes('Play Again')) { 
-                    resetGame(); 
+            if (key === 'Shift') {
+                e.preventDefault();
+                // Only reset if game is not active or message indicates game is over
+                if (!gameActive || message.includes('Wins!') || message.includes('draw!')) {
+                    resetGame();
                 }
-                return; 
+                return;
             }
 
-            if (PLAYER_1_CONTROLS[key.toLowerCase()]) { 
-                const { dx, dy } = PLAYER_1_CONTROLS[key.toLowerCase()];
-                const currentActiveDirection = snake1.direction;
-                if (!(currentActiveDirection.dx === -dx && currentActiveDirection.dy === -dy) || player1InputQueue.current.length === 0) {
-                    player1InputQueue.current.push({ dx, dy });
-                }
-            }
-            else if (PLAYER_2_CONTROLS[key]) {
-                const { dx, dy } = PLAYER_2_CONTROLS[key];
-                const currentActiveDirection = snake2.direction;
-                if (!(currentActiveDirection.dx === -dx && currentActiveDirection.dy === -dy) || player2InputQueue.current.length === 0) {
-                    player2InputQueue.current.push({ dx, dy });
+            if (gameActive) { // Only process controls if game is active
+                if (PLAYER_1_CONTROLS[key.toLowerCase()]) {
+                    const { dx, dy } = PLAYER_1_CONTROLS[key.toLowerCase()];
+                    const currentActiveDirection = snake1.direction;
+                    // Prevent immediate 180-degree turn
+                    if (!(currentActiveDirection.dx === -dx && currentActiveDirection.dy === -dy)) {
+                        player1InputQueue.current.push({ dx, dy });
+                    }
+                } else if (PLAYER_2_CONTROLS[key]) {
+                    const { dx, dy } = PLAYER_2_CONTROLS[key];
+                    const currentActiveDirection = snake2.direction;
+                    // Prevent immediate 180-degree turn
+                    if (!(currentActiveDirection.dx === -dx && currentActiveDirection.dy === -dy)) {
+                        player2InputQueue.current.push({ dx, dy });
+                    }
                 }
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [snake1.direction, snake2.direction, gameActive, message, resetGame]); 
+    }, [snake1.direction, snake2.direction, gameActive, message, resetGame]);
 
     useEffect(() => {
         let animationFrameId;
 
         const loop = (currentTime) => {
+            // If game is no longer active, stop the loop immediately
             if (!gameActive) {
-                cancelAnimationFrame(animationFrameId); 
+                cancelAnimationFrame(animationFrameId);
+                gameLoopRef.current = null; // Clear the ref
                 return;
             }
 
+            // Initialize lastUpdateTimeRef if it's the first frame
             if (lastUpdateTimeRef.current === 0) {
                 lastUpdateTimeRef.current = currentTime;
             }
 
             const deltaTime = currentTime - lastUpdateTimeRef.current;
 
-            if (deltaTime >= gameSpeed) { 
+            if (deltaTime >= gameSpeed) {
                 updateGame();
-                lastUpdateTimeRef.current = currentTime; 
+                lastUpdateTimeRef.current = currentTime;
             }
-            animationFrameId = requestAnimationFrame(loop); 
+            animationFrameId = requestAnimationFrame(loop);
+            gameLoopRef.current = animationFrameId; // Keep the ref updated with the current animation frame ID
         };
 
         if (gameActive) {
-            animationFrameId = requestAnimationFrame(loop); 
+            // Start the animation loop
+            animationFrameId = requestAnimationFrame(loop);
+            gameLoopRef.current = animationFrameId; // Store the initial animation frame ID
         } else {
-            cancelAnimationFrame(gameLoopRef.current);
+            // When gameActive becomes false, ensure any *currently running* loop is cancelled.
+            // This is especially important if the game state changes to inactive while a frame is pending.
+            if (gameLoopRef.current) {
+                cancelAnimationFrame(gameLoopRef.current);
+                gameLoopRef.current = null; // Clear the ref
+            }
         }
 
+        // Cleanup function for useEffect. This runs when the component unmounts
+        // or before the effect re-runs due to dependency changes.
         return () => {
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
+            if (gameLoopRef.current) { // Use gameLoopRef.current for robust cancellation
+                cancelAnimationFrame(gameLoopRef.current);
+                gameLoopRef.current = null; // Clear the ref
             }
         };
-    }, [gameActive, updateGame, gameSpeed]); 
+    }, [gameActive, updateGame, gameSpeed]);
+
+    const goBackToHomePage = () => {
+        // Ensure any lingering game loops are stopped before "navigating" (resetting the component)
+        if (gameLoopRef.current) {
+            cancelAnimationFrame(gameLoopRef.current);
+            gameLoopRef.current = null;
+        }
+        navigate('/dashboard'); // Navigate to the dashboard
+    };
 
     // --- Render ---
     return (
@@ -547,11 +610,21 @@ const App = () => {
                 <div className="text-2xl h-[60px] flex items-center justify-center text-center">
                     {message}
                 </div>
-                
+
                 <div className="text-xs mt-2 text-center mb-4">
-                    <p>P1: WASD | P2: UJHK</p>
-                    <p></p> {/* Updated instruction */}
+                    <p>P1 ({playerNames.player1}): WASD | P2 ({playerNames.player2}): UJHK</p>
+                    {/* The empty <p> tag can remain if it's for spacing, it shouldn't cause the "Objects are not valid" error */}
                 </div>
+
+                {/* Back to Home Button */}
+                {(!gameActive && (message.includes('Wins!'))) && ( // Show if game is not active AND game over message is present
+                    <button
+                        onClick={goBackToHomePage}
+                        className="font-['Press_Start_2P'] bg-gray-700 text-white border-2 border-gray-600 px-5 py-3 text-base rounded-lg cursor-pointer transition-all active:translate-y-0.5 active:shadow-inner shadow-[0_4px_#333] mt-8"
+                    >
+                        Back to Home
+                    </button>
+                )}
             </div>
         </div>
     );

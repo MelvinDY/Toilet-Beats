@@ -155,14 +155,38 @@ const RhythmGame = () => {
 
   // Check for winner
   useEffect(() => {
-    if (score.p1 >= WIN_SCORE && !gameWinner) {
-      setGameWinner('Player 1');
-      setGameActive(false);
-    } else if (score.p2 >= WIN_SCORE && !gameWinner) {
-      setGameWinner('Player 2');
-      setGameActive(false);
+  if ((score.p1 >= WIN_SCORE || score.p2 >= WIN_SCORE) && !gameWinner) {
+    const winner = score.p1 >= WIN_SCORE ? 'Player 1' : 'Player 2';
+    setGameWinner(winner);
+    setGameActive(false);
+
+    // 🔄 Fetch players from localStorage
+    const existingData = JSON.parse(localStorage.getItem('players')) || {
+      player1: 'Player 1',
+      player2: 'Player 2',
+      scores: { 'Player 1': 0, 'Player 2': 0 },
+    };
+
+    const winnerName =
+      winner === 'Player 1' ? existingData.player1 : existingData.player2;
+
+    const updatedData = {
+      ...existingData,
+      scores: {
+        ...existingData.scores,
+        [winnerName]: (existingData.scores[winnerName] || 0) + 1,
+      },
+    };
+
+    localStorage.setItem('players', JSON.stringify(updatedData));
+
+    if (updatedData.scores[winnerName] >= 2) {
+      setTimeout(() => {
+        navigate('/winner');
+      }, 500);
     }
-  }, [score, gameWinner]);
+  }
+}, [score, gameWinner]);
 
   const resetGame = () => {
     setScore({ p1: 0, p2: 0 });
