@@ -58,5 +58,5 @@ Because bad ideas bring people together.
 This chaotic pile of HTML, React, and emojis was built in under 48 hours to honor the Terrible Idea Hackathon. We took the theme “Connection” literally… and flushed it down the toilet.
 
 🧻 Made With (Some) Shame
-By Melvin Darial Yogiana and friends
+By Melvin Darial Yogiana, Rafa Alaztar and Riddick Smith
 Made to make you laugh, sweat, and argue over pixelated poop-based victory.
