@@ -37,5 +37,5 @@ app.get('/status', (req, res) => {
 
 // Start server
 app.listen(PORT, '0.0.0.0',  () => {
-  console.log(`🚀 Toilet server running on http://192.168.11.109:${PORT}`);
+  console.log(`🚀 Toilet server running on http://10.4.39.232:${PORT}`);
 });
