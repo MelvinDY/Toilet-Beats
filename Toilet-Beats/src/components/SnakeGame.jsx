@@ -399,6 +399,11 @@ const App = () => {
             data.scores[winnerName] = (data.scores[winnerName] || 0) + 1;
             localStorage.setItem('players', JSON.stringify(data));
             setMessage(`${winnerName} Wins! Congrats, ${winnerName} is one step closer to earning their TP`);
+
+            if (data.scores[winner] >= 2) {
+                navigate('/winner');
+            return;
+        }
         }
         // Do not call cancelAnimationFrame here directly; let useEffect handle it.
     }, [playerNames]); // playerNames is a dependency for the message
