@@ -191,8 +191,8 @@ export default function SlipNPong() {
 
       if (keys["w"] && leftPaddle.y > 0) leftPaddle.y -= 6;
       if (keys["s"] && leftPaddle.y < canvas.height - paddleHeight) leftPaddle.y += 6;
-      if (keys["ArrowUp"] && rightPaddle.y > 0) rightPaddle.y -= 6;
-      if (keys["ArrowDown"] && rightPaddle.y < canvas.height - paddleHeight) rightPaddle.y += 6;
+      if (keys["u"] && rightPaddle.y > 0) rightPaddle.y -= 6;
+      if (keys["j"] && rightPaddle.y < canvas.height - paddleHeight) rightPaddle.y += 6;
 
       ball.x += ball.vx;
       ball.y += ball.vy;
