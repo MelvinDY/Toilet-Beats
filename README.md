@@ -1,4 +1,4 @@
-🚽 Toilet Games: Battle for the Throne
+🚽 Stall wars: Battle for the Throne
 A hilariously awful (but secretly amazing) 2-player arcade created for the Terrible Idea Hackathon, themed around “Connection” – because nothing connects people quite like battling for a piece of toilet paper 💩.
 
 🎮 Included Minigames
